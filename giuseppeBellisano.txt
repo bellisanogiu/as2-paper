@@ -53,6 +53,15 @@ Invece di ottimizzare il partizionamento e l’assemblaggio separatamente, si un
 
 2)	Nel passo packing esso migliora la qualità del packing per organizzare densamente i pezzi in uno stato packed
 
-Questi due passi funzionano iterativamente sino a soddisfare con qualità tutti e due gli obiettivi.
+Questi due passi funzionano iterativamente sino a soddisfare con qualità tutti gli obiettivi prefissati nei due passi.
 
-Per assicurare la qualità del risultato è stato inserito tra i due passi un ulteriore passo constrant enforcement. Quando il sistema rileva una violazione del vincolo, viene effettuata una correzione locale per correggerlo
+Per assicurare la qualità del risultato è stato inserito tra i due passi un ulteriore passo constrant enforcement. Quando il sistema rileva una violazione del vincolo, effettua una correzione locale per correggerlo
+
+Altri contributi tecnici
+Oltre a sviluppare questo nuovo sistema di ottimizzazione, i nostri contributi tecnici sono:
+
+1)	Tool di analisi: la qualità del partizionamento è stata valutata con nuovi tool che includono: collision detector, packing solver, locking detector. Tutti questi tool sono formulati sotto il framework multi-phase level set
+
+2)	Metodi level set. Sulla base dell’analisi, vengono presentati metodi level set per migliorare la qualità del partizionamento. Mentre alcuni sono sviluppati usando un approccio “variational”, altri modificano le funzioni level set direttamente e localmente
+
+3) Struttura del contenitore. Viene presentato un algoritmo che modella una struttura container per semplificare il processo di packing e proteggere i pezzi dai danni derivanti dalla collisione con il contenitore.
