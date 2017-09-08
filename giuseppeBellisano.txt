@@ -1,0 +1,58 @@
+Level-Set-Based Partitioning and Packing Optimization of a Printable Model
+
+La tecnologia della stampa 3D ha rivoluzionato molti aspetti della produzione industriale, ma ha fatto emergere anche delle nuove criticità e problemi da gestire nella maniera pi� opportuna come il suddividere un modello 3D in singoli pezzi al fine di ottenere vantaggi come la diminuzione dello spazio di confezionamento grazie alla riorganizzazione dei pezzi nella confezione, la riduzione del tempo di stampa grazie a processi di stampa paralleli o la creazione di modelli 3D di volume superiore a quello consentito dalla stampante in uso.
+In questo paper è stato presentato uno studio sul partizionamento e confezionamento (packing) dei modelli 3D utilizzando un framework multi-phase level set (framework multi-fase basato sul level set) al fine di generare un partizionamento ottimale dei modelli 3D.
+Prima di tutto si è costruita un tool di analisi che valuta la qualita del partizionamento attraverso sei metriche:
+
+a. Stress load
+b. Surface detail
+c. Interface area
+d. Packed size
+e. Printability
+f. Assembling
+
+2. Sulla base di questa analisi, sono stati trovati dei metodi level set per migliorare la qualità del partizionamento (sempre sulla base delle metriche precedentemente indicate). Questi metodi sono stati poi integrati in un sistema automatico che ripetutamente e localmente  ha ottimizzato il partizionamento.
+
+3. Con il risultato del partizionamento finale, si trova un algoritmo di modellazione del contenitore per facilitare il processo di confezionamento dei pezzi stampati.
+
+Le metriche precedentemente individuate permettono di determinare la qualità del partizionamento del modello 3D.
+
+1) Carico di stress minimo. Il partizionamento dovrebbe evitare regioni di stress elevate all'interno di un modello. Ovvero si deve evitare che i pezzi siano facilmente separabili, a causa di grandi tensioni o carichi di taglio.
+
+2) Allineamento del dettaglio superficiale  (Surface detail alignment). I pezzi del modello potrebbero non allinearsi/combaciare perfettamente a causa di errori nella stampa, Per rendere le cuciture meno visibili sulle superfici confinanti, possiamo allinearle con dettagli superficiali, dove le persone si aspettano di vedere le discontinuità
+
+3) Interfaccia minima: una cucitura tra due pezzi può anche essere ridotta minimizzando l'area di contatto. Più è piccola l'area di contatto/contorno, minore sarà la probabilità che le parti non combacino
+
+4) Minima dimensione dello stato Packed. Il partizionamento dovrebbe permettere ai pezzi di essere densamente organizzati in uno stato utile per l'imballaggio e per il trasporto. Questo stato può essere utile per velocizzare la stampa e minimizzare l'altezza dei pezzi
+
+5) Stampabilità. Il partizionamento dovrebbe assicurare che ogni pezzo possa essere stampato; nello specifico ogni pezzo non dovrebbe superare il volume della stampante 3D o contenere dei dettagli non rappresentabili dalla risoluzione della stampante utilizzata
+
+6) Assemblaggio. Non devono sussistere problemi nell'assemblaggio dei pezzi nello stato originale o in quello packed
+
+Il partizionamento del modello 3D è stato condotto con la rappresentazione geometrica del level set
+https://en.wikipedia.org/wiki/Level-set_method
+
+La rappresentazione level set gestisce i cambiamenti topologici senza effettuare il remesh (nuova topologia di mesh in cui si ha un cambio di numero, forma, dimensione, allineamento di poligoni): https://docs.blender.org/manual/de/dev/modeling/modifiers/generate/remesh.html) ed evitando artefatti di sampling (errori di rappresentazione).
+Altre rappresentazioni sono:
+
+1) Mesh
+2) Point cloud. Vedi: https://it.wikipedia.org/wiki/Nuvola_di_punti
+
+Altri motivi per cui è stato usato il level set sono due:
+
+1) Il campo di distanza (signed distance field: https://en.wikipedia.org/wiki/Signed_distance_function) permette di gestire con facilità e velocità le collisioni che spesso si verificano nella simulazione del packing solver
+
+2)	In secondo luogo, come rappresentazione volumetrica (indicata precedentemente come geometric processing), il level set è più compatibile con il processo di stratificazione comunemente utilizzato nella tecnologia di stampa 3D, che successivamente applica materiale di stampa in strati per formare il volume di un oggetto.
+
+È molto difficile ottimizzare il partizionamento e il packing insieme utilizzando una singola funzione, dal momento che la partizione viene formulata nello spazio originale mentre il packing è definito nello spazio packed. Per quanto sappiamo, non esiste una soluzione efficace per questo unico problema di ottimizzazione.
+Nei precedenti studi il partitioning e il packing sono stati applicati separatamente. Questo approccio limita la qualità del packing e fa si che il partizionamento debba essere continuamene aggiustato per ridurre lo spazio packed.
+
+Invece di ottimizzare il partizionamento e l’assemblaggio separatamente, si un utilizza un sistema che li processa separatamente, ma in modo connesso-stratificato. Il sistema constrained optimization raffina iterativamente la qualità del partizionamento di un modello 3D in due passi:
+
+1)	Nel passo variabile vengono migliorate le qualità del partizionamento includendo: minimum stress load, surface detailaligment, e minimal interface area
+
+2)	Nel passo packing esso migliora la qualità del packing per organizzare densamente i pezzi in uno stato packed
+
+Questi due passi funzionano iterativamente sino a soddisfare con qualità tutti e due gli obiettivi.
+
+Per assicurare la qualità del risultato è stato inserito tra i due passi un ulteriore passo constrant enforcement. Quando il sistema rileva una violazione del vincolo, viene effettuata una correzione locale per correggerlo
